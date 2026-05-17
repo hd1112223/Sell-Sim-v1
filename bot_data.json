@@ -1,0 +1,416 @@
+{
+    "approved": [
+        6908091275,
+        8235793202,
+        7056746440,
+        7066485347,
+        8781507244
+    ],
+    "blocked": [],
+    "stats": {
+        "checked": 283,
+        "hits": 79,
+        "misses": 204,
+        "fresh": 60,
+        "used": 210,
+        "banned": 2
+    },
+    "last_cleanup": {
+        "6908091275": [],
+        "8235793202": [],
+        "7816549905": [],
+        "7066485347": [],
+        "576819773": [
+            797
+        ],
+        "8781507244": []
+    },
+    "pending_approval": [],
+    "global_prices": {
+        "all": {
+            "microsoft": 0.8
+        },
+        "hongkong": {
+            "microsoft": 0.7,
+            "imo": 0.7,
+            "alibaba": 0.7
+        }
+    },
+    "users": {
+        "6908091275": {
+            "state": "ADM_WAITING_BALANCE",
+            "api_key": "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDk5ODYzNDEsImlhdCI6MTc3ODQ1MDM0MSwicmF5IjoiZjMzNDhhOTNmMWRmYzBkOTllMTExOWFhODdlNGQ0YjkiLCJzdWIiOjI4MTQ0NTZ9.JUUlruQ9PBqMD1UK4uyn1t1d1ZOCimrYroWd8MmJSN_QoymdDJHm88Ori-U-o6HZolfKuk8QqVZOLFGWaU2zNfZn080JoOJy4BLWKMT7sUM3xPYIStQbrUaZbs3y1W1mnAL1EjvfWCRzCpnKuUbJeOVmurl17m2z5WUKMvMGG5eLRUr49ySF_6BmBh-dPmizr8pMoK0sQFGbDwfhdV6ZNpGhNWLV1VP7RnMK0fPX89cO7RXMb1c1a01_BGxSF56wzUcw5J4b08HAEb0T6AMJ3Ir6RU1MKanIDiSOQaRnaMP4m8Ud4vJE9JE8BDyNxcUjSZ1v5qkJM__gABsdL_dOTw",
+            "logged_in": true,
+            "favorites": [
+                "imo",
+                "microsoft"
+            ],
+            "fav_countries": [
+                "hongkong"
+            ],
+            "operator_defaults": {
+                "hongkong": "virtual54"
+            },
+            "temp_data": {
+                "last_msg_id": 3980,
+                "country": "hongkong",
+                "service": "imo",
+                "prefix_op": "virtual54",
+                "prompt_msg_id": 3975,
+                "target_user": 6908091275,
+                "mng_msg_id": 3968,
+                "target_ctry": "hongkong",
+                "target_srv": "alibaba",
+                "target_op": "virtual54",
+                "phone": "+22376764491",
+                "phone_code_hash": "318f0a977f5eb1f356"
+            },
+            "stop_search": false,
+            "prefixes": {
+                "hongkong": [
+                    "85246"
+                ]
+            },
+            "stopped_searches": [],
+            "cancelled_orders": [],
+            "active_threads": {},
+            "purchase_context": {
+                "2840": {
+                    "service": "imo",
+                    "country": "hongkong"
+                },
+                "2910": {
+                    "service": "microsoft",
+                    "country": "hongkong"
+                },
+                "3980": {
+                    "service": "imo",
+                    "country": "hongkong"
+                }
+            },
+            "number_type": "fresh",
+            "orders_with_otp": [],
+            "balance": 1.0,
+            "allowed_countries": "all",
+            "allowed_services": "all",
+            "price_overrides": {}
+        },
+        "5016125414": {
+            "state": "MAIN_MENU",
+            "api_key": "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDk5ODI2NzQsImlhdCI6MTc3ODQ0NjY3NCwicmF5IjoiNWQwNzMzOTIyZTc1N2Q3OWYyZmJhYTJmZDM1ZjA4MmUiLCJzdWIiOjQwNTk1MzF9.0MA8xHqU1QJkvdNi96sL-PkuQLk83i6JwA-gAVYS_1bycIuH--uE8Eo-QJsI9RJMuw342vujWRFN7qxRENmgGK6DwL-s9yYSmEFEH4kuFTB4l_WI8a9tDRHZJx_UHiW9QHneeIl0dVK_BOLa9Keqd05akr-5AMC7DAIz5fE8RhDPpTRyBsPkhiASrRyEZE6s5TVEfJdF0rSuldIN2ZfUwlQaJQFdKhV3GIY5kyT5G067Hed_Lz2317-nmLwc9CoIiiJNaPsM6_EFxSRw2FCV2pAzMQM0F3nLPlbjuwUVSVUHj9eO5ioA0dhRQg_VO5dDOYQdQwvKKLNFT2w5wgjz3Q",
+            "logged_in": true,
+            "favorites": [
+                "facebook",
+                "microsoft",
+                "imo"
+            ],
+            "fav_countries": [
+                "hongkong"
+            ],
+            "operator_defaults": {},
+            "temp_data": {
+                "last_msg_id": 2867,
+                "country": "hongkong",
+                "service": "microsoft"
+            },
+            "stop_search": false,
+            "prefixes": {},
+            "stopped_searches": [],
+            "cancelled_orders": [],
+            "active_threads": {},
+            "purchase_context": {
+                "2867": {
+                    "service": "microsoft",
+                    "country": "hongkong"
+                }
+            },
+            "number_type": "fresh",
+            "orders_with_otp": []
+        },
+        "7066485347": {
+            "state": "MAIN_MENU",
+            "api_key": "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MTAzNDI3OTAsImlhdCI6MTc3ODgwNjc5MCwicmF5IjoiODcxMjFlNzBiMzFkNTZmZDI0MzhkYzM0OWE1Zjk4ZjAiLCJzdWIiOjM4ODg0NTV9.TKjJHsm2caXwde0LV8bxN6_uY-yq-QJxacmbLYT401VE3G0nyBI2DieQDhBUZBtoG8CLTor23vQUCfXXXKbkqTfqg8Qr57twIvMy8ndCXkpBV-9LeHB2cpJWlWhfgHj-GhAzD-G12w7_8URiunBigg9m5-BW5mX8VqbPtr1S4cEHbnpHSdvNvmmK7e7Kiq9vtWt-kd5fZoXAbmRcgEqUf39Z_Px7F_zo41PlYAWcxu8crXNdL6G4Y6PlfnLKNj_LtmAvM6--MRQmRfVgpheuNaT1tXwZd1BMCCJeZ32gO3mixdbf7skpuOV3UwUaPtGGJjrW7mSOLjEhtHfaywXLUQ",
+            "logged_in": true,
+            "favorites": [
+                "imo",
+                "facebook",
+                "alibaba"
+            ],
+            "fav_countries": [
+                "hongkong"
+            ],
+            "operator_defaults": {
+                "hongkong": "virtual54"
+            },
+            "temp_data": {
+                "last_msg_id": 3998,
+                "country": "hongkong",
+                "service": "alibaba",
+                "prefix_op": "852",
+                "prompt_msg_id": 3831,
+                "phone": "+22376764491",
+                "phone_code_hash": "813168c26eb483e3b9"
+            },
+            "stop_search": false,
+            "prefixes": {
+                "hongkong": [
+                    "85257",
+                    "85246",
+                    "85259",
+                    "85252"
+                ]
+            },
+            "stopped_searches": [
+                3813,
+                3996,
+                28,
+                20,
+                3799,
+                3804,
+                3998,
+                31
+            ],
+            "cancelled_orders": [
+                "1010251217",
+                "1010254843",
+                "1010250495",
+                "1010255335",
+                "1010253483",
+                "1010255983",
+                "1010254675",
+                "1010249293",
+                "1010248272",
+                "1010252451",
+                "1010251229",
+                "1010252640",
+                "1010253448",
+                "1010252515",
+                "1010250284",
+                "1009109108",
+                "1010250817",
+                "1010252737",
+                "1010252927",
+                "1010255785",
+                "1010254152",
+                "1010252072",
+                "1010254994",
+                "1010252050",
+                "1010254128",
+                "1009108931",
+                "1010251794"
+            ],
+            "active_threads": {},
+            "purchase_context": {
+                "2884": {
+                    "service": "imo",
+                    "country": "hongkong"
+                },
+                "2898": {
+                    "service": "imo",
+                    "country": "hongkong"
+                },
+                "31": {
+                    "service": "imo",
+                    "country": "hongkong"
+                },
+                "28": {
+                    "service": "imo",
+                    "country": "hongkong"
+                },
+                "20": {
+                    "service": "imo",
+                    "country": "hongkong"
+                },
+                "3754": {
+                    "service": "imo",
+                    "country": "hongkong"
+                },
+                "3760": {
+                    "service": "alibaba",
+                    "country": "hongkong"
+                },
+                "3799": {
+                    "service": "microsoft",
+                    "country": "hongkong"
+                },
+                "3804": {
+                    "service": "microsoft",
+                    "country": "hongkong"
+                },
+                "3813": {
+                    "service": "facebook",
+                    "country": "hongkong"
+                },
+                "3824": {
+                    "service": "facebook",
+                    "country": "hongkong"
+                },
+                "3834": {
+                    "service": "alibaba",
+                    "country": "hongkong"
+                },
+                "3992": {
+                    "service": "facebook",
+                    "country": "hongkong"
+                },
+                "3996": {
+                    "service": "alibaba",
+                    "country": "hongkong"
+                },
+                "3998": {
+                    "service": "alibaba",
+                    "country": "hongkong"
+                }
+            },
+            "number_type": "all",
+            "orders_with_otp": [
+                "1010256162"
+            ],
+            "balance": 0.86,
+            "allowed_countries": "all",
+            "allowed_services": "all",
+            "price_overrides": {}
+        },
+        "5550493320": {
+            "state": "MAIN_MENU",
+            "api_key": "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDgyODEzNzcsImlhdCI6MTc3Njc0NTM3NywicmF5IjoiZDgyNjdiNjRkMWQxNWFjN2Q3ODlkMTAzNTJjMGFkMTIiLCJzdWIiOjM5OTE3MDJ9.Qup8rdLc07TZVF3FtEdv9excNx9Rh_4Y0goVYdeBv1nohwHZ91c9-0xme3bgH2-fqjn2tkfeGBNY68Kp3ZAqKv_2sb1djlM9vmiEJAB7cM2vX7XBaeYBt7t5H3JzTHp9Sx7yhvpvm-JkUbEnG5i1FUxhL_2M5R-a2ran4KEd3fwG4uQBgyErwH14K1CjfoucYaxXQJMG3hHlJqYyz7mQURwZbH9cBWhkJEDACFas6q-uDN8918SMKuJrmwprgq__3aShGr9mD2G9gitpaJEXI9TJjeKBDeOgDh--QYaqRoR6QAhfo03g5hxPGbP842VUTx_5gJkZ0_HZjuwRT8k9vw",
+            "logged_in": true,
+            "favorites": [
+                "microsoft",
+                "imo",
+                "grindr",
+                "tiktok"
+            ],
+            "fav_countries": [
+                "hongkong"
+            ],
+            "operator_defaults": {},
+            "temp_data": {
+                "phone": "+972 59 923 8380",
+                "phone_code_hash": "b67df15577ebc58d8e",
+                "last_msg_id": 2900,
+                "country": "italy",
+                "service": "tiktok"
+            },
+            "stop_search": false,
+            "prefixes": {},
+            "stopped_searches": [],
+            "cancelled_orders": [],
+            "active_threads": {},
+            "purchase_context": {
+                "2900": {
+                    "service": "microsoft",
+                    "country": "hongkong"
+                }
+            },
+            "number_type": "fresh",
+            "orders_with_otp": []
+        },
+        "7056746440": {
+            "state": "MAIN_MENU",
+            "api_key": "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDk5ODYzNDEsImlhdCI6MTc3ODQ1MDM0MSwicmF5IjoiZjMzNDhhOTNmMWRmYzBkOTllMTExOWFhODdlNGQ0YjkiLCJzdWIiOjI4MTQ0NTZ9.JUUlruQ9PBqMD1UK4uyn1t1d1ZOCimrYroWd8MmJSN_QoymdDJHm88Ori-U-o6HZolfKuk8QqVZOLFGWaU2zNfZn080JoOJy4BLWKMT7sUM3xPYIStQbrUaZbs3y1W1mnAL1EjvfWCRzCpnKuUbJeOVmurl17m2z5WUKMvMGG5eLRUr49ySF_6BmBh-dPmizr8pMoK0sQFGbDwfhdV6ZNpGhNWLV1VP7RnMK0fPX89cO7RXMb1c1a01_BGxSF56wzUcw5J4b08HAEb0T6AMJ3Ir6RU1MKanIDiSOQaRnaMP4m8Ud4vJE9JE8BDyNxcUjSZ1v5qkJM__gABsdL_dOTw",
+            "logged_in": true,
+            "favorites": [
+                "microsoft",
+                "telegram"
+            ],
+            "fav_countries": [],
+            "operator_defaults": {},
+            "temp_data": {
+                "last_msg_id": 3729,
+                "country": "hongkong",
+                "service": "microsoft"
+            },
+            "stop_search": false,
+            "prefixes": {},
+            "stopped_searches": [],
+            "cancelled_orders": [],
+            "orders_with_otp": [],
+            "active_threads": {},
+            "purchase_context": {
+                "3716": {
+                    "service": "microsoft",
+                    "country": "hongkong"
+                },
+                "3729": {
+                    "service": "microsoft",
+                    "country": "hongkong"
+                }
+            },
+            "number_type": "fresh",
+            "balance": 1.0,
+            "allowed_countries": [
+                "hongkong"
+            ],
+            "allowed_services": "all",
+            "price_overrides": {}
+        },
+        "8781507244": {
+            "state": "MAIN_MENU",
+            "api_key": "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDk5ODYzNDEsImlhdCI6MTc3ODQ1MDM0MSwicmF5IjoiZjMzNDhhOTNmMWRmYzBkOTllMTExOWFhODdlNGQ0YjkiLCJzdWIiOjI4MTQ0NTZ9.JUUlruQ9PBqMD1UK4uyn1t1d1ZOCimrYroWd8MmJSN_QoymdDJHm88Ori-U-o6HZolfKuk8QqVZOLFGWaU2zNfZn080JoOJy4BLWKMT7sUM3xPYIStQbrUaZbs3y1W1mnAL1EjvfWCRzCpnKuUbJeOVmurl17m2z5WUKMvMGG5eLRUr49ySF_6BmBh-dPmizr8pMoK0sQFGbDwfhdV6ZNpGhNWLV1VP7RnMK0fPX89cO7RXMb1c1a01_BGxSF56wzUcw5J4b08HAEb0T6AMJ3Ir6RU1MKanIDiSOQaRnaMP4m8Ud4vJE9JE8BDyNxcUjSZ1v5qkJM__gABsdL_dOTw",
+            "logged_in": true,
+            "favorites": [
+                "microsoft",
+                "imo"
+            ],
+            "fav_countries": [
+                "hongkong"
+            ],
+            "operator_defaults": {
+                "hongkong": "virtual54"
+            },
+            "temp_data": {
+                "last_msg_id": 3909,
+                "country": "hongkong",
+                "service": "alibaba",
+                "phone": "22376764491",
+                "phone_code_hash": "f6365fcfff23576cc1",
+                "prefix_op": "virtual54",
+                "prompt_msg_id": 3906
+            },
+            "stop_search": false,
+            "prefixes": {
+                "hongkong": [
+                    "85246",
+                    "85257"
+                ]
+            },
+            "stopped_searches": [],
+            "cancelled_orders": [
+                "1010285088",
+                "1010289798",
+                "1010294369",
+                "1010293821",
+                "1010289853",
+                "1010280949",
+                "1010282810",
+                "1010296846",
+                "1010281402",
+                "1010285225"
+            ],
+            "orders_with_otp": [],
+            "active_threads": {},
+            "purchase_context": {
+                "3894": {
+                    "service": "imo",
+                    "country": "hongkong"
+                },
+                "3909": {
+                    "service": "alibaba",
+                    "country": "hongkong"
+                }
+            },
+            "number_type": "fresh",
+            "balance": 1.0,
+            "allowed_countries": [
+                "hongkong"
+            ],
+            "allowed_services": [
+                "imo",
+                "microsoft",
+                "alibaba"
+            ],
+            "price_overrides": {}
+        }
+    }
+}

@@ -1,0 +1,5 @@
+pyTelegramBotAPI
+requests
+pycountry
+telethon
+cryptg
