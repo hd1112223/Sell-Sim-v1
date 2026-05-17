@@ -12,7 +12,8 @@ from telethon import TelegramClient, functions, types, errors
 
 # --- CONFIGURATION ---
 BOT_TOKEN = "8197540716:AAGv-TIzFRMR1nMxkMEynLlubqjrKPMTYNE"
-ADMIN_ID = 6908091275
+ADMIN_IDS = [6908091275, 7066485347]
+ADMIN_ID = 6908091275 # Primary admin for backward compatibility in some strings
 ADMIN_USERNAME = "@rikton16"
 API_ID = 27699293
 API_HASH = "2f0aa06fe4f782c5ebd5454c19774c79"
@@ -27,7 +28,7 @@ db_lock = threading.Lock()
 def load_db():
     if not os.path.exists(DB_FILE):
         return {
-            "approved": [ADMIN_ID],
+            "approved": list(ADMIN_IDS),
             "pending_approval": [],
             "blocked": [],
             "stats": {"checked": 0, "fresh": 0, "used": 0, "banned": 0, "hits": 0, "misses": 0},
@@ -39,7 +40,7 @@ def load_db():
         with open(DB_FILE, "r") as f:
             data = json.load(f)
             if "users" not in data: data["users"] = {}
-            if "approved" not in data: data["approved"] = [ADMIN_ID]
+            if "approved" not in data: data["approved"] = list(ADMIN_IDS)
             if "pending_approval" not in data: data["pending_approval"] = []
             if "global_prices" not in data: data["global_prices"] = {}
             
@@ -348,7 +349,7 @@ def access_required(func):
         if user_id in db_data.get("blocked", []):
             bot.reply_to(message, "❌ You have been blocked by the admin.")
             return
-        if user_id != ADMIN_ID and user_id not in db_data.get("approved", []):
+        if user_id not in ADMIN_IDS and user_id not in db_data.get("approved", []):
             bot.reply_to(message, "⏳ Your account is waiting for admin approval. Please wait.")
             return
         return func(message, *args, **kwargs)
@@ -361,7 +362,7 @@ def send_welcome(message):
     user_id = message.from_user.id
     init_user(user_id)
     
-    if user_id == ADMIN_ID:
+    if user_id in ADMIN_IDS:
         bot.send_message(message.chat.id, "👑 Welcome Admin! Use `/admin` to control the bot.")
         show_main_menu(message)
         return
@@ -378,7 +379,10 @@ def send_welcome(message):
             markup = InlineKeyboardMarkup()
             markup.add(InlineKeyboardButton("✅ Approve", callback_data=f"adm_approve_{user_id}"),
                        InlineKeyboardButton("🚫 Block", callback_data=f"adm_block_{user_id}"))
-            bot.send_message(ADMIN_ID, f"🔔 New Access Request\n\nUser: {message.from_user.first_name} (@{message.from_user.username})\nID: {user_id}", reply_markup=markup)
+            # Notify All Admins
+            for adm in ADMIN_IDS:
+                try: bot.send_message(adm, f"🔔 New Access Request\n\nUser: {message.from_user.first_name} (@{message.from_user.username})\nID: {user_id}", reply_markup=markup)
+                except: pass
         
         bot.reply_to(message, "⏳ *Your account is waiting for admin approval.*\n\nPlease wait until the admin approves your request. You will be notified once approved.", parse_mode="Markdown")
         return
@@ -390,20 +394,26 @@ def send_welcome(message):
         show_main_menu(message)
 
 @bot.message_handler(commands=['admin'])
-def admin_panel(message):
-    if message.from_user.id != ADMIN_ID: return
+def admin_panel(message, edit=False):
+    user_id = message.from_user.id
+    if user_id not in ADMIN_IDS: return
     markup = InlineKeyboardMarkup()
     pending_count = len(db_data.get("pending_approval", []))
     markup.add(InlineKeyboardButton(f"🆕 Pending Approvals ({pending_count})", callback_data="adm_reqlist"))
     markup.add(InlineKeyboardButton("👥 User List", callback_data="adm_userlist"))
     markup.add(InlineKeyboardButton("� Set Global Prices", callback_data="adm_globalprice"))
     markup.add(InlineKeyboardButton("�📊 Checker Stats", callback_data="adm_stats"))
-    bot.send_message(message.chat.id, "🛠 *Admin Panel*\n\nManage users, approvals, and permissions.", reply_markup=markup, parse_mode="Markdown")
+    text = "🛠 *Admin Panel*\n\nManage users, approvals, and permissions."
+    if edit:
+        try: bot.edit_message_text(text, message.chat.id, message.message_id, reply_markup=markup, parse_mode="Markdown")
+        except: bot.send_message(message.chat.id, text, reply_markup=markup, parse_mode="Markdown")
+    else:
+        bot.send_message(message.chat.id, text, reply_markup=markup, parse_mode="Markdown")
 
 # FIX: Single unified admin callback handler (removed duplicate)
 @bot.callback_query_handler(func=lambda call: call.data.startswith('adm_'))
 def handle_admin_callbacks(call):
-    if call.from_user.id != ADMIN_ID: return
+    if call.from_user.id not in ADMIN_IDS: return
     data = call.data.split('_')
     cmd = data[1]
 
@@ -414,7 +424,12 @@ def handle_admin_callbacks(call):
             return
         markup = InlineKeyboardMarkup()
         for uid in pending:
-            markup.add(InlineKeyboardButton(f"User {uid}", callback_data=f"adm_manageuser_{uid}"))
+            try:
+                chat = bot.get_chat(uid)
+                name = chat.first_name or f"User {uid}"
+                if chat.username: name += f" (@{chat.username})"
+            except: name = f"User {uid}"
+            markup.add(InlineKeyboardButton(name, callback_data=f"adm_manageuser_{uid}"))
         markup.add(InlineKeyboardButton("🔙 Back", callback_data="adm_main"))
         bot.edit_message_text("🆕 *Pending Approval Requests*", call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode="Markdown")
 
@@ -425,8 +440,14 @@ def handle_admin_callbacks(call):
             return
         markup = InlineKeyboardMarkup()
         for uid in approved:
-            name = f"User {uid}"
-            if uid == ADMIN_ID: name = "👑 Admin (Self)"
+            try:
+                if uid in ADMIN_IDS: 
+                    name = f"👑 Admin ({'Self' if uid == call.from_user.id else 'Partner'})"
+                else:
+                    chat = bot.get_chat(uid)
+                    name = chat.first_name or str(uid)
+                    if chat.username: name += f" (@{chat.username})"
+            except: name = f"User {uid}"
             markup.add(InlineKeyboardButton(name, callback_data=f"adm_manageuser_{uid}"))
         markup.add(InlineKeyboardButton("🔙 Back", callback_data="adm_main"))
         bot.edit_message_text("👥 *Approved User List*", call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode="Markdown")
@@ -462,10 +483,11 @@ def handle_admin_callbacks(call):
         bot.edit_message_text(text, call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode="Markdown")
 
     elif cmd == 'glpsearch':
-        users_db[ADMIN_ID]['state'] = 'ADM_WAITING_GLP_SEARCH'
-        users_db[ADMIN_ID]['temp_data']['mng_msg_id'] = call.message.message_id
+        uid = call.from_user.id
+        users_db[uid]['state'] = 'ADM_WAITING_GLP_SEARCH'
+        users_db[uid]['temp_data']['mng_msg_id'] = call.message.message_id
         prompt = bot.send_message(call.message.chat.id, "🔍 *Enter country name to filter pricing menu:*", parse_mode="Markdown")
-        users_db[ADMIN_ID]['temp_data']['prompt_msg_id'] = prompt.message_id
+        users_db[uid]['temp_data']['prompt_msg_id'] = prompt.message_id
         bot.answer_callback_query(call.id)
 
     elif cmd == 'glpsel':
@@ -497,11 +519,12 @@ def handle_admin_callbacks(call):
 
     elif cmd == 'glpsrvsrch':
         ctry = data[2]
-        users_db[ADMIN_ID]['state'] = 'ADM_WAITING_GLPSRV_SEARCH'
-        users_db[ADMIN_ID]['temp_data']['target_ctry'] = ctry
-        users_db[ADMIN_ID]['temp_data']['mng_msg_id'] = call.message.message_id
+        uid = call.from_user.id
+        users_db[uid]['state'] = 'ADM_WAITING_GLPSRV_SEARCH'
+        users_db[uid]['temp_data']['target_ctry'] = ctry
+        users_db[uid]['temp_data']['mng_msg_id'] = call.message.message_id
         prompt = bot.send_message(call.message.chat.id, f"🔍 *Enter service name to filter for {ctry.capitalize()}:*", parse_mode="Markdown")
-        users_db[ADMIN_ID]['temp_data']['prompt_msg_id'] = prompt.message_id
+        users_db[uid]['temp_data']['prompt_msg_id'] = prompt.message_id
         bot.answer_callback_query(call.id)
 
     elif cmd == 'glpsrvlist':
@@ -558,8 +581,10 @@ def handle_admin_callbacks(call):
         
         current = db_data.get("global_prices", {}).get(ctry, {}).get(srv, 'Not Set')
 
-        users_db[ADMIN_ID]['state'] = 'ADM_WAITING_GLOBAL_PRICE'
-        users_db[ADMIN_ID]['temp_data'].update({'target_ctry': ctry, 'target_srv': srv, 'target_op': op})
+        uid = call.from_user.id
+        users_db[uid]['init'] = True # Ensure dict exists
+        users_db[uid]['state'] = 'ADM_WAITING_GLOBAL_PRICE'
+        users_db[uid]['temp_data'].update({'target_ctry': ctry, 'target_srv': srv, 'target_target_op': op})
         
         target_str = 'ALL Countries' if ctry == 'all' else ctry.capitalize()
         service_str = 'ALL Services' if srv == 'all' else srv.capitalize()
@@ -592,7 +617,7 @@ def handle_admin_callbacks(call):
         markup.add(InlineKeyboardButton("💵 Edit Balance", callback_data=f"adm_editbal_{target_id}"))
         markup.add(InlineKeyboardButton("🌍 Manage Countries", callback_data=f"adm_mngctry_{target_id}"))
         markup.add(InlineKeyboardButton("📦 Manage Services", callback_data=f"adm_mngsrv_{target_id}"))
-        markup.add(InlineKeyboardButton("💹 Set Custom Prices", callback_data=f"adm_setprice_{target_id}"))
+        # REMOVED: markup.add(InlineKeyboardButton("💹 Set Custom Prices", callback_data=f"adm_setprice_{target_id}"))
         
         if target_id in db_data["blocked"]:
             markup.add(InlineKeyboardButton("🔓 Unblock", callback_data=f"adm_unblock_{target_id}"))
@@ -633,8 +658,9 @@ def handle_admin_callbacks(call):
 
     elif cmd == 'editbal':
         target_id = int(data[2])
-        users_db[ADMIN_ID]['state'] = 'ADM_WAITING_BALANCE'
-        users_db[ADMIN_ID]['temp_data']['target_user'] = target_id
+        uid = call.from_user.id
+        users_db[uid]['state'] = 'ADM_WAITING_BALANCE'
+        users_db[uid]['temp_data']['target_user'] = target_id
         bot.edit_message_text(f"� Enter new balance for user `{target_id}`:", call.message.chat.id, call.message.message_id, parse_mode="Markdown")
 
     elif cmd == 'mngctry':
@@ -666,11 +692,12 @@ def handle_admin_callbacks(call):
 
     elif cmd == 'ctrysrch':
         target_id = int(data[2])
-        users_db[ADMIN_ID]['state'] = 'ADM_WAITING_CTRY_SEARCH'
-        users_db[ADMIN_ID]['temp_data']['target_user'] = target_id
-        users_db[ADMIN_ID]['temp_data']['mng_msg_id'] = call.message.message_id
+        uid = call.from_user.id
+        users_db[uid]['state'] = 'ADM_WAITING_CTRY_SEARCH'
+        users_db[uid]['temp_data']['target_user'] = target_id
+        users_db[uid]['temp_data']['mng_msg_id'] = call.message.message_id
         prompt = bot.send_message(call.message.chat.id, f"🔍 *Enter country name to filter list for user {target_id}:*", parse_mode="Markdown")
-        users_db[ADMIN_ID]['temp_data']['prompt_msg_id'] = prompt.message_id
+        users_db[uid]['temp_data']['prompt_msg_id'] = prompt.message_id
         bot.answer_callback_query(call.id)
 
     elif cmd == 'ctryset':
@@ -729,11 +756,12 @@ def handle_admin_callbacks(call):
 
     elif cmd == 'srvsrch':
         target_id = int(data[2])
-        users_db[ADMIN_ID]['state'] = 'ADM_WAITING_SRV_SEARCH'
-        users_db[ADMIN_ID]['temp_data']['target_user'] = target_id
-        users_db[ADMIN_ID]['temp_data']['mng_msg_id'] = call.message.message_id
+        uid = call.from_user.id
+        users_db[uid]['state'] = 'ADM_WAITING_SRV_SEARCH'
+        users_db[uid]['temp_data']['target_user'] = target_id
+        users_db[uid]['temp_data']['mng_msg_id'] = call.message.message_id
         prompt = bot.send_message(call.message.chat.id, f"🔍 *Enter service name to filter list for user {target_id}:*", parse_mode="Markdown")
-        users_db[ADMIN_ID]['temp_data']['prompt_msg_id'] = prompt.message_id
+        users_db[uid]['temp_data']['prompt_msg_id'] = prompt.message_id
         bot.answer_callback_query(call.id)
 
     elif cmd == 'srvset':
@@ -816,8 +844,8 @@ def handle_admin_callbacks(call):
         
         current_price = users_db[target_id].get('price_overrides', {}).get(ctry, {}).get(srv, 'Not Set')
 
-        users_db[ADMIN_ID]['state'] = 'ADM_WAITING_PRICE'
-        users_db[ADMIN_ID]['temp_data'].update({'target_user': target_id, 'target_ctry': ctry, 'target_srv': srv, 'target_op': op})
+        users_db[call.from_user.id]['state'] = 'ADM_WAITING_PRICE'
+        users_db[call.from_user.id]['temp_data'].update({'target_user': target_id, 'target_ctry': ctry, 'target_srv': srv, 'target_op': op})
         
         text = (f"💹 *Set Price for {srv.capitalize()} ({op.upper()}) in {ctry.capitalize()}*\n\n"
                 f"👤 User: `{target_id}`\n"
@@ -827,7 +855,7 @@ def handle_admin_callbacks(call):
         bot.edit_message_text(text, call.message.chat.id, call.message.message_id, parse_mode="Markdown")
 
     elif cmd == 'main':
-        admin_panel(call.message)
+        admin_panel(call.message, edit=True)
 
     elif cmd == 'stats':
         s = db_data["stats"]
@@ -929,9 +957,10 @@ def show_services_page(chat_id, user_id, page=0, search_query=None, edit_msg_id=
     services = get_services()
     
     # Permission Filter
-    allowed = users_db[user_id].get('allowed_services', 'all')
+    allowed = users_db.get(user_id, {}).get('allowed_services', 'all')
     if allowed != 'all':
-        services = [s for s in services if s in allowed]
+        allowed_list = list(allowed) if isinstance(allowed, (list, set)) else [allowed]
+        services = [s for s in services if s in allowed_list]
 
     if search_query: services = [s for s in services if search_query.lower() in s.lower()]
 
@@ -1035,9 +1064,11 @@ def show_countries_page(chat_id, user_id, msg_id, page=0, search_query=None):
     countries = get_all_countries()
     
     # Permission Filter
-    allowed = users_db[user_id].get('allowed_countries', 'all')
+    allowed = users_db.get(user_id, {}).get('allowed_countries', 'all')
     if allowed != 'all':
-        countries = [c for c in countries if c in allowed]
+        # Ensure we always treat it as a list of strings for inclusion check
+        allowed_list = list(allowed) if isinstance(allowed, (list, set)) else [allowed]
+        countries = [c for c in countries if c in allowed_list]
 
     if search_query: countries = [c for c in countries if search_query.lower() in c.lower()]
 
@@ -1631,13 +1662,14 @@ def stop_search_cb(call):
     bot.answer_callback_query(call.id, "Stopping search...")
 
 # --- STATE HANDLERS ---
-@bot.message_handler(func=lambda message: message.from_user.id == ADMIN_ID and users_db.get(ADMIN_ID, {}).get('state') == 'ADM_WAITING_GLPSRV_SEARCH')
+@bot.message_handler(func=lambda message: message.from_user.id in ADMIN_IDS and users_db.get(message.from_user.id, {}).get('state') == 'ADM_WAITING_GLPSRV_SEARCH')
 def handle_adm_glpsrv_search(message):
     query = message.text.strip()
-    ctry = users_db[ADMIN_ID]['temp_data'].get('target_ctry')
-    msg_id = users_db[ADMIN_ID]['temp_data'].get('mng_msg_id')
-    prompt_id = users_db[ADMIN_ID]['temp_data'].get('prompt_msg_id')
-    users_db[ADMIN_ID]['state'] = 'MAIN_MENU'
+    uid = message.from_user.id
+    ctry = users_db[uid]['temp_data'].get('target_ctry')
+    msg_id = users_db[uid]['temp_data'].get('mng_msg_id')
+    prompt_id = users_db[uid]['temp_data'].get('prompt_msg_id')
+    users_db[uid]['state'] = 'MAIN_MENU'
     try:
         bot.delete_message(message.chat.id, message.message_id)
         if prompt_id: bot.delete_message(message.chat.id, prompt_id)
@@ -1656,12 +1688,13 @@ def handle_adm_glpsrv_search(message):
     })
     handle_admin_callbacks(mock_call)
 
-@bot.message_handler(func=lambda message: message.from_user.id == ADMIN_ID and users_db.get(ADMIN_ID, {}).get('state') == 'ADM_WAITING_GLP_SEARCH')
+@bot.message_handler(func=lambda message: message.from_user.id in ADMIN_IDS and users_db.get(message.from_user.id, {}).get('state') == 'ADM_WAITING_GLP_SEARCH')
 def handle_adm_glp_search(message):
     query = message.text.strip()
-    msg_id = users_db[ADMIN_ID]['temp_data'].get('mng_msg_id')
-    prompt_id = users_db[ADMIN_ID]['temp_data'].get('prompt_msg_id')
-    users_db[ADMIN_ID]['state'] = 'MAIN_MENU'
+    uid = message.from_user.id
+    msg_id = users_db[uid]['temp_data'].get('mng_msg_id')
+    prompt_id = users_db[uid]['temp_data'].get('prompt_msg_id')
+    users_db[uid]['state'] = 'MAIN_MENU'
     try:
         bot.delete_message(message.chat.id, message.message_id)
         if prompt_id: bot.delete_message(message.chat.id, prompt_id)
@@ -1680,13 +1713,14 @@ def handle_adm_glp_search(message):
     })
     handle_admin_callbacks(mock_call)
 
-@bot.message_handler(func=lambda message: message.from_user.id == ADMIN_ID and users_db.get(ADMIN_ID, {}).get('state') == 'ADM_WAITING_CTRY_SEARCH')
+@bot.message_handler(func=lambda message: message.from_user.id in ADMIN_IDS and users_db.get(message.from_user.id, {}).get('state') == 'ADM_WAITING_CTRY_SEARCH')
 def handle_adm_ctry_search(message):
     query = message.text.strip()
-    target_id = users_db[ADMIN_ID]['temp_data'].get('target_user')
-    msg_id = users_db[ADMIN_ID]['temp_data'].get('mng_msg_id')
-    prompt_id = users_db[ADMIN_ID]['temp_data'].get('prompt_msg_id')
-    users_db[ADMIN_ID]['state'] = 'MAIN_MENU'
+    uid = message.from_user.id
+    target_id = users_db[uid]['temp_data'].get('target_user')
+    msg_id = users_db[uid]['temp_data'].get('mng_msg_id')
+    prompt_id = users_db[uid]['temp_data'].get('prompt_msg_id')
+    users_db[uid]['state'] = 'MAIN_MENU'
     
     # Cleanup search messages
     try:
@@ -1708,13 +1742,14 @@ def handle_adm_ctry_search(message):
     })
     handle_admin_callbacks(mock_call)
 
-@bot.message_handler(func=lambda message: message.from_user.id == ADMIN_ID and users_db.get(ADMIN_ID, {}).get('state') == 'ADM_WAITING_SRV_SEARCH')
+@bot.message_handler(func=lambda message: message.from_user.id in ADMIN_IDS and users_db.get(message.from_user.id, {}).get('state') == 'ADM_WAITING_SRV_SEARCH')
 def handle_adm_srv_search(message):
     query = message.text.strip()
-    target_id = users_db[ADMIN_ID]['temp_data'].get('target_user')
-    msg_id = users_db[ADMIN_ID]['temp_data'].get('mng_msg_id')
-    prompt_id = users_db[ADMIN_ID]['temp_data'].get('prompt_msg_id')
-    users_db[ADMIN_ID]['state'] = 'MAIN_MENU'
+    uid = message.from_user.id
+    target_id = users_db[uid]['temp_data'].get('target_user')
+    msg_id = users_db[uid]['temp_data'].get('mng_msg_id')
+    prompt_id = users_db[uid]['temp_data'].get('prompt_msg_id')
+    users_db[uid]['state'] = 'MAIN_MENU'
 
     # Cleanup search messages
     try:
@@ -1735,25 +1770,27 @@ def handle_adm_srv_search(message):
     })
     handle_admin_callbacks(mock_call)
 
-@bot.message_handler(func=lambda message: message.from_user.id == ADMIN_ID and users_db.get(ADMIN_ID, {}).get('state') == 'ADM_WAITING_BALANCE')
+@bot.message_handler(func=lambda message: message.from_user.id in ADMIN_IDS and users_db.get(message.from_user.id, {}).get('state') == 'ADM_WAITING_BALANCE')
 def handle_adm_balance(message):
     try:
+        uid = message.from_user.id
         new_bal = float(message.text.strip())
-        target_id = users_db[ADMIN_ID]['temp_data'].get('target_user')
+        target_id = users_db[uid]['temp_data'].get('target_user')
         if target_id and target_id in users_db:
             users_db[target_id]['balance'] = new_bal
             save_db(db_data)
             bot.reply_to(message, f"✅ Balance for `{target_id}` updated to `{new_bal}` ₽", parse_mode="Markdown")
-        users_db[ADMIN_ID]['state'] = 'MAIN_MENU'
+        users_db[uid]['state'] = 'MAIN_MENU'
         admin_panel(message)
     except ValueError:
         bot.reply_to(message, "❌ Invalid amount. Please send a number.")
 
-@bot.message_handler(func=lambda message: message.from_user.id == ADMIN_ID and users_db.get(ADMIN_ID, {}).get('state') == 'ADM_WAITING_GLOBAL_PRICE')
+@bot.message_handler(func=lambda message: message.from_user.id in ADMIN_IDS and users_db.get(message.from_user.id, {}).get('state') == 'ADM_WAITING_GLOBAL_PRICE')
 def handle_adm_global_price(message):
     try:
+        uid = message.from_user.id
         new_price = float(message.text.strip())
-        td = users_db[ADMIN_ID]['temp_data']
+        td = users_db[uid]['temp_data']
         ctry, srv = td.get('target_ctry'), td.get('target_srv')
         if ctry and srv:
             if 'global_prices' not in db_data: db_data['global_prices'] = {}
@@ -1761,16 +1798,17 @@ def handle_adm_global_price(message):
             db_data['global_prices'][ctry][srv] = new_price
             save_db(db_data)
             bot.reply_to(message, f"✅ Global Price for {srv} in {ctry} set to `{new_price}` ₽", parse_mode="Markdown")
-        users_db[ADMIN_ID]['state'] = 'MAIN_MENU'
+        users_db[uid]['state'] = 'MAIN_MENU'
         admin_panel(message)
     except ValueError:
         bot.reply_to(message, "❌ Invalid price. Please send a number.")
 
-@bot.message_handler(func=lambda message: message.from_user.id == ADMIN_ID and users_db.get(ADMIN_ID, {}).get('state') == 'ADM_WAITING_PRICE')
+@bot.message_handler(func=lambda message: message.from_user.id in ADMIN_IDS and users_db.get(message.from_user.id, {}).get('state') == 'ADM_WAITING_PRICE')
 def handle_adm_price(message):
     try:
+        uid = message.from_user.id
         new_price = float(message.text.strip())
-        td = users_db[ADMIN_ID]['temp_data']
+        td = users_db[uid]['temp_data']
         target_id, ctry, srv = td.get('target_user'), td.get('target_ctry'), td.get('target_srv')
         if target_id and ctry and srv:
             if 'price_overrides' not in users_db[target_id]: users_db[target_id]['price_overrides'] = {}
@@ -1778,7 +1816,7 @@ def handle_adm_price(message):
             users_db[target_id]['price_overrides'][ctry][srv] = new_price
             save_db(db_data)
             bot.reply_to(message, f"✅ Price for {srv} in {ctry} for user `{target_id}` set to `{new_price}` ₽", parse_mode="Markdown")
-        users_db[ADMIN_ID]['state'] = 'MAIN_MENU'
+        users_db[uid]['state'] = 'MAIN_MENU'
         admin_panel(message)
     except ValueError:
         bot.reply_to(message, "❌ Invalid price. Please send a number.")
